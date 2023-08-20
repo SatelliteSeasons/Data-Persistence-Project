@@ -2,76 +2,64 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.IO;
+using UnityEngine.SceneManagement;
 
-[Serializable]
 public class SaveData : MonoBehaviour
 {
-    public DataPlayer dataPlayer = new DataPlayer();
+    public static SaveData instance;
 
-
-    // Start is called before the first frame update
-    void Start()
+    public void Awake()
     {
-        
+        if(instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
-    // Update is called once per frame
-    void Update()
+    public void SaveScore(PlayerData playerData)
     {
-        
-    }
-
-    public void SaveDataJSON()
-    {
-        string bestPlayer = JsonUtility.ToJson(dataPlayer);
+        string bestPlayer = JsonUtility.ToJson(playerData);
         string filePath = Application.persistentDataPath + "/bestPlayer.json";
-        Debug.Log(filePath);
         System.IO.File.WriteAllText(filePath, bestPlayer);
-        Debug.Log("Charger");
+        Debug.Log(filePath);
     }
 
-    public void LoadDataJSON()
+    public PlayerData LoadScore()
     {
         string filePath = Application.persistentDataPath + "/bestPlayer.json";
-        string bestPlayer = System.IO.File.ReadAllText(filePath);
-
-
-        dataPlayer = JsonUtility.FromJson<DataPlayer>(bestPlayer);
-
-
-
+        if(File.Exists(filePath))
+        {
+            string bestPlayer = File.ReadAllText(filePath);
+            PlayerData playerData = new PlayerData();
+            playerData = JsonUtility.FromJson<PlayerData>(bestPlayer);
+            return playerData;
+        }
+        else
+        {
+            return null;
+        }
     }
 
-    public void PeekDataJSON()
+    public void DestroySave()
     {
+        string filePath = Application.persistentDataPath + "/bestPlayer.json";
+        if(File.Exists(filePath))
+        {
+            File.Delete(filePath);
+            SceneManager.LoadScene(0);
+            Debug.Log("fichier détruit");
 
+        }
+        else
+        {
+            Debug.Log("Fichier non existant");
+        }
     }
 
-}
-
-[Serializable]
-public class DataPlayer
-{
-    public string playerName;
-    public int bestScore;
-
-    public void SetName(string name)
-    {
-        this.playerName = name;
-    }
-
-    public string GetName()
-    {
-        return this.playerName;
-    }
-
-    public void SetBestScore(int score)
-    {
-        this.bestScore = score; 
-    }
-
-    public int GetBestScore()
-    {
-        return this.bestScore;
-    }
 }

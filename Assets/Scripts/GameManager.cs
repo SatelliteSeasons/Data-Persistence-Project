@@ -5,22 +5,17 @@ using UnityEngine.Rendering;
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager Instance;
-    public static SaveData saveData;
+    public static GameManager instance;
 
-    public string namePlayer;
-    public int actualScore;
+    public string playerName;
 
-    public string bestPlayer;
-    public int bestScore;
 
     private void Awake()
     {
-        if (Instance == null)
+        if (instance == null)
         {
 
-            Instance = this;
-            saveData = new SaveData();
+            instance = this;
             DontDestroyOnLoad(gameObject);
         }
         else
@@ -29,41 +24,15 @@ public class GameManager : MonoBehaviour
         }
         
     }
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 
     public void SetName(string name)
     {
-        this.namePlayer = name;
+        this.playerName = name;
     }
 
     public string GetName()
     {
-        return this.namePlayer;
-    }
-
-    public void Save()
-    {
-
-        saveData.LoadDataJSON();
-        if (saveData.dataPlayer.GetBestScore() <= actualScore)
-        {
-            saveData.dataPlayer.SetName(namePlayer);
-            saveData.dataPlayer.SetBestScore(actualScore);
-            saveData.SaveDataJSON();
-        }
-        else
-        {
-            Debug.Log("Impossible de sauver, trop faible score");
-        }
+        return this.playerName;
     }
 
 }

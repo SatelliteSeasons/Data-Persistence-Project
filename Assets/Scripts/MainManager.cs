@@ -11,22 +11,25 @@ public class MainManager : MonoBehaviour
     public int LineCount = 6;
     public Rigidbody Ball;
 
-    public Text ScoreText;
+    //UI
     public TextMeshProUGUI NameText;
+    public Text ScoreText;
     public GameObject GameOverText;
+    public Text BestScoreText;
     
     private bool m_Started = false;
-    private int m_Points;
+    private int m_Points; //score point
     
     private bool m_GameOver = false;
 
-    
-    // Start is called before the first frame update
+    private PlayerData bestPlayer;
+
+
     void Start()
     {
-        NameText.text = GameManager.Instance.GetName();
-        GameManager.saveData.LoadDataJSON();
-        ScoreText.text = "Best Score : " + GameManager.saveData.dataPlayer.GetName() + GameManager.saveData.dataPlayer.GetBestScore();
+        this.LoadBestPlayer();
+        this.m_Points = 0;
+        NameText.text = GameManager.instance.GetName();
 
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
@@ -67,13 +70,12 @@ public class MainManager : MonoBehaviour
             }
         }
 
-        //Absolument affreux, à optimiser plus tard, ne pas oublier, j'espère....
-        if(Input.GetKeyDown(KeyCode.S))
+        if(this.bestPlayer.GetBestScore() < this.m_Points)
         {
-            GameManager gameManager = GameManager.Instance;
-            gameManager.actualScore = this.m_Points;
-            GameManager.Instance.namePlayer = NameText.text;
-            GameManager.Instance.Save();
+            this.BestScoreText.text = "Best Score : " + this.NameText.text + " : " + this.m_Points;
+            this.bestPlayer.SetBestScore(m_Points);
+            this.bestPlayer.SetName(this.NameText.text);
+            SaveData.instance.SaveScore(this.bestPlayer);
         }
 
     }
@@ -93,5 +95,19 @@ public class MainManager : MonoBehaviour
     public void ReturnToMenu()
     {
         SceneManager.LoadScene(0);
+    }
+
+    public void LoadBestPlayer()
+    {
+        bestPlayer = SaveData.instance.LoadScore();
+        if(bestPlayer == null)
+        {
+            BestScoreText.text = "Best Score : Nobody";
+            bestPlayer = new PlayerData(0);
+        }
+        else
+        {
+            BestScoreText.text = "Best Score : " + bestPlayer.GetName() + " : " + bestPlayer.GetBestScore();
+        }
     }
 }
