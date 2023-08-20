@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -11,6 +12,7 @@ public class MainManager : MonoBehaviour
     public Rigidbody Ball;
 
     public Text ScoreText;
+    public TextMeshProUGUI NameText;
     public GameObject GameOverText;
     
     private bool m_Started = false;
@@ -22,6 +24,10 @@ public class MainManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        NameText.text = GameManager.Instance.GetName();
+        GameManager.saveData.LoadDataJSON();
+        ScoreText.text = "Best Score : " + GameManager.saveData.dataPlayer.GetName() + GameManager.saveData.dataPlayer.GetBestScore();
+
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
         
@@ -60,6 +66,16 @@ public class MainManager : MonoBehaviour
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
             }
         }
+
+        //Absolument affreux, à optimiser plus tard, ne pas oublier, j'espère....
+        if(Input.GetKeyDown(KeyCode.S))
+        {
+            GameManager gameManager = GameManager.Instance;
+            gameManager.actualScore = this.m_Points;
+            GameManager.Instance.namePlayer = NameText.text;
+            GameManager.Instance.Save();
+        }
+
     }
 
     void AddPoint(int point)
@@ -72,5 +88,10 @@ public class MainManager : MonoBehaviour
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+    }
+
+    public void ReturnToMenu()
+    {
+        SceneManager.LoadScene(0);
     }
 }
